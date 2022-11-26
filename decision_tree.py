@@ -34,6 +34,13 @@ def getbestfeat(df):
         return None 
     return max(df.columns[:-1], key=lambda feature: getIG(df, feature))
 
+class Node :
+    def __init__(self ,attribute=None,branche_childs=None):
+        self.attribute=attribute
+        self.branche_childs=branche_childs
+    def __repr__(self) :
+        return f"attribute = {self.attribute} \n branches -> child : \n {self.branche_childs}\n "
+      
     # for feature in df
 #part a
 df1 = pd.read_csv('nursery.csv')
@@ -46,5 +53,8 @@ test = df1.drop(train.index)
 # print(df1['final evaluation'].value_counts()['not_recom'])
 # print([df1[df1['final evaluation']==x] for x in df1['final evaluation'].value_counts()])
 # print(getIG(df1, 'final evaluation'), getIG(df1, 'health'))
-print(getbestfeat(df1['final evaluation']))
+# print(getbestfeat(df1['final evaluation']))
 
+n=Node('health',{'x':Node('mamad',{'x':0}),'y':0,'z':'1'})
+# print(Node('health'),)
+print(n)

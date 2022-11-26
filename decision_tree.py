@@ -59,10 +59,11 @@ class Node:
         self.branch_childs = branch_childs
 
     def __repr__(self):
-        if self.branch_childs :
+        if self.branch_childs:
             return f"attribute = {self.attribute} \n [branch -> childs] : \n {self.branch_childs}\n "
-        else :
+        else:
             return f"attribute = {self.attribute}"
+
 
 class tree:
     # assume that last column is target feature
@@ -71,8 +72,7 @@ class tree:
         self.depth = depth
         self.critertion = criterion
         self.root = root
-        self.y_predict = df[df.columns[-1]].copy()
-        self.y_predict[:] = None
+        self.y_predict = None
 
     def fit(self):
         if self.df.shape[1] == 2 or self.depth == 1:
@@ -87,21 +87,34 @@ class tree:
                 k for k in self.df.columns if k != self.root.attribute]
 
             for val in self.df[self.root.attribute].unique():
-                df_tmp = self.df[self.df[self.root.attribute]== val][residual_columns]
+                df_tmp = self.df[self.df[self.root.attribute]
+                                 == val][residual_columns]
                 tree_tmp = tree(df_tmp, self.depth-1,
                                 criterion=self.critertion)
-                root_tmp=tree_tmp.fit()
+                root_tmp = tree_tmp.fit()
                 self.root.branch_childs[val] = root_tmp
         return self.root
+
     def predict(self, X_tr, node=None):
         if node is None:
-            node=self.root
-        
+            node = self.root
+        if self.y_predict is None:
+
+            self.y_predict = X_tr[X_tr.columns[-1]].copy()
+            # no matter which column of X_tr is selected
+            # it just needs the indexes!
+            self.y_predict[:] = None
+            self.y_predict.name = self.df.columns[-1]
         if node.branch_childs:
+
             for b, c in node.branch_childs.items():
                 self.predict(X_tr[X_tr[node.attribute] == b], c)
         else:
             self.y_predict.loc[X_tr.axes[0]] = node.attribute
+        return self.y_predict
+
+    def accuracy(self, ytest):
+        return round(sum(self.y_predict == ytest)/self.y_predict.shape[0], 2)
 
     # for feature in df
 
@@ -138,10 +151,12 @@ test = df1.drop(train.index)
 # print(df1[x])
 # print(df1[['final evaluation','health']])
 t = tree(df1[['form', 'social', 'health', 'final evaluation']], 3)
-# t = tree(df1, 7)
+
+# t = tree(df1, 3)
 t.fit()
-print(t.root)
-# t.predict(df1[df1.columns[:-1]])
-# print(t.y_predict)
+# print(t.root)
+# print(df1[df1.columns[-1]])
+print(t.predict(test[test.columns[:-1]]))
+print(t.accuracy(test[test.columns[-1]]))
 # print(t.root.branch_childs['recommended'])
 # print(df1[['form','social']][:500]['form'][400:])

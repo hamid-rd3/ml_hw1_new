@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import time 
 
 def get_entropy(df):
 
@@ -122,8 +122,34 @@ class tree:
 # part a
 df1 = pd.read_csv('nursery.csv')
 df1.dropna()
-train = df1.sample(frac=0.8, random_state=200)
+train = df1.sample(frac=0.8, random_state=3)
 test = df1.drop(train.index)
+
+start = time.time()
+t = tree(df1, 8) # complete tree 
+t.fit()
+print(t.root)
+print(f"predicted y :\n {t.predict(test[test.columns[:-1]])} \n")
+print(f"accuracy is \n {t.accuracy(test[test.columns[-1]])*100} %")
+print(round(time.time()-start, 2))
+
+# part b 
+
+train = df1.sample(frac=0.50, random_state=3)
+test = df1.drop(train.index)
+start = time.time()
+t1 = tree(df1, 6)  # complete tree
+t1.fit()
+print(t1.root)
+print(f"predicted y :\n {t1.predict(test[test.columns[:-1]])} \n")
+print(f"accuracy is \n {t1.accuracy(test[test.columns[-1]])*100} %")
+print(round(time.time()-start, 2))
+t2 = tree(df1, 8)  # complete tree
+t2.fit()
+print(t2.root)
+print(f"predicted y :\n {t2.predict(test[test.columns[:-1]])} \n")
+print(f"accuracy is \n {t2.accuracy(test[test.columns[-1]])*100} %")
+
 # y=df1['final evaluation']
 # y[:]=None
 # y.loc[df1['health'][[1,300, 600, 900,12958]].axes[0]] = 'asd'
@@ -150,13 +176,7 @@ test = df1.drop(train.index)
 # x.remove('health')
 # print(df1[x])
 # print(df1[['final evaluation','health']])
-t = tree(df1[['form', 'social', 'health', 'final evaluation']], 3)
+# t = tree(df1[['form', 'social', 'health', 'final evaluation']], 8)
 
-# t = tree(df1, 3)
-t.fit()
-# print(t.root)
-# print(df1[df1.columns[-1]])
-print(t.predict(test[test.columns[:-1]]))
-print(t.accuracy(test[test.columns[-1]]))
 # print(t.root.branch_childs['recommended'])
 # print(df1[['form','social']][:500]['form'][400:])
